@@ -11,6 +11,15 @@ warnings.filterwarnings('ignore')
 import schedule as schedule
 import time
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+#Iniciar las variables de entorno
+load_dotenv()
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_pwd = os.getenv('DB_PWD')
+
 
 #Conectar con los datos del exchange
 exchange = ccxt.binance()
@@ -64,13 +73,13 @@ def read_position(position):
 def save_report():
     now = datetime.now()
     mydb = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        passwd='Mysqls3rv3r',
-        database='trader_tester'
+        host=db_host,
+        user=db_user,
+        passwd=db_pwd,
+        database='backtesting'
     )
     mycursor = mydb.cursor()
-    sql = f"INSERT INTO ltc_btc (tempo, buy_price, sell_price) VALUES (%s, %s, %s)"
+    sql = f"INSERT INTO btc_usdt (tempo, buy_price, sell_price) VALUES (%s, %s, %s)"
     val = (now, last_buy_price, last_sell_price)
     mycursor.execute(sql, val)
     mydb.commit()
@@ -131,7 +140,7 @@ def reading_market(df):
 
 #Pedir datos a la api
 
-def execute_connection(symbol='LTC/BTC', timeframe='1m'):
+def execute_connection(symbol='BTC/USDT', timeframe='1m'):
     
     print(f'-------------------------------------------------------------------     POSICION[{in_position}]     ULTIMA COMPRA[{last_buy_price}]     ULTIMA VENTA[{last_sell_price}]')
     print('Comenzando ciclo de analisis de mercado')
