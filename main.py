@@ -87,7 +87,6 @@ def reading_market(df):
     global last_sell_price
     global last_buy_time
     global last_sell_time
-    global session_results
 
     price_now = df['close'][98] 
 
