@@ -57,12 +57,8 @@ def technical_signals(df):
 in_position = False
 last_buy_price = 0
 last_sell_price = 0
-
-seession_dictionary = {
-    'BUY': [0],
-    'SELL': [0]
-}
-session_results = pd.DataFrame(seession_dictionary)
+last_buy_time = '2023-07-23 00:00:00'
+last_sell_time = '2023-07-23 00:00:00'
 
 def read_position(position):
     position_info = 'No hay informacion sobre la posicion'
@@ -71,16 +67,15 @@ def read_position(position):
     return position_info
 
 def save_report():
-    now = datetime.now()
     mydb = mysql.connector.connect(
         host=db_host,
         user=db_user,
         passwd=db_pwd,
-        database='backtesting'
+        database='backtest'
     )
     mycursor = mydb.cursor()
-    sql = f"INSERT INTO btc_usdt (tempo, buy_price, sell_price) VALUES (%s, %s, %s)"
-    val = (now, last_buy_price, last_sell_price)
+    sql = f"INSERT INTO btc_usdt (buy_time, buy_price, sell_price, sell_time) VALUES (%s, %s, %s, %s)"
+    val = (last_buy_time, last_buy_price, last_sell_price, last_sell_time)
     mycursor.execute(sql, val)
     mydb.commit()
     print('Se ha registrado la operación')
@@ -90,6 +85,8 @@ def reading_market(df):
     global in_position
     global last_buy_price
     global last_sell_price
+    global last_buy_time
+    global last_sell_time
     global session_results
 
     price_now = df['close'][98] 
@@ -107,7 +104,9 @@ def reading_market(df):
         if not in_position:
             order_buy = 'Compra simulada' #exchange.create_market_buy_order('BTC/USDT', 1)
             in_position = True
-            last_buy_price = price_now    
+            last_buy_price = price_now 
+            now = datetime.now()
+            last_buy_time = now   
                 
             print(" ")
             print("COMPRA REALIZADA")
@@ -124,6 +123,8 @@ def reading_market(df):
             order_sell = 'Venta simulada' # exchange.create_market_sell_order('BTC/USDT', 1)
             in_position = False
             last_sell_price = price_now
+            now = datetime.now()
+            last_sell_time = now   
 
             #Imprimir venta
 
